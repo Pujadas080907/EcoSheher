@@ -142,7 +142,22 @@ fun IssueDetailsPage(
                             )
 
                             // Mark user as having upvoted
-                            FirestoreHelper.markUserUpvoted(context,reportId)
+                            FirestoreHelper.markUserUpvoted(context, reportId)
+                        } else {  // User is removing upvote
+                            val newUpvoteCount = upvoteCount - 1
+                            isUpvoted = false
+                            upvoteCount = newUpvoteCount
+
+                            // Update Firestore
+                            FirestoreHelper.updateUpvoteCount(
+                                reportId = reportId,
+                                newCount = newUpvoteCount,
+                                onSuccess = { /* Success */ },
+                                onFailure = { /* Handle failure */ }
+                            )
+
+                            // Remove upvote record
+                            FirestoreHelper.unmarkUserUpvoted(context, reportId)
                         }
                     }
                 ) {

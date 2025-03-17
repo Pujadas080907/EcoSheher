@@ -3,6 +3,7 @@ package com.example.ecosheher.navGraph
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -11,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.ecosheher.addReportPage.AddReportPage
+import com.example.ecosheher.authentication.AuthState
 
 import com.example.ecosheher.authentication.AuthViewModel
 import com.example.ecosheher.authentication.LoginPage
@@ -30,9 +32,18 @@ import com.google.gson.Gson
 fun SetNavGraph(modifier: Modifier = Modifier, authViewModel: AuthViewModel){
     val navController: NavHostController = rememberNavController()
 
+    val authState = authViewModel.authState.observeAsState().value
+
+
+    val startDestination = when (authState) {
+        is AuthState.Authenticated -> Routes.Home.routes
+        is AuthState.Unauthenticated, null -> Routes.Login.routes
+        else -> Routes.Login.routes
+    }
+
     NavHost(
         navController = navController,
-        startDestination = Routes.Login.routes
+        startDestination = startDestination
     ) {
         composable(Routes.Login.routes) {
             LoginPage(modifier,navController,authViewModel)
@@ -54,7 +65,7 @@ fun SetNavGraph(modifier: Modifier = Modifier, authViewModel: AuthViewModel){
             AcrossIndiaPage(navController)
         }
         composable(Routes.Awareness.routes) {
-            AwarenessPage()
+            AwarenessPage(navController)
         }
         composable(Routes.AddReport.routes) {
             AddReportPage(navController)

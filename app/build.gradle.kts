@@ -76,4 +76,8 @@ dependencies {
     //gson
     implementation ("com.google.code.gson:gson:2.10.1")
 
+    //youtube api
+    implementation ("com.pierfrancescosoffritti.androidyoutubeplayer:core:11.1.0")
+
+
 }
