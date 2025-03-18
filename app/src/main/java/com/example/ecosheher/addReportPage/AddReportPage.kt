@@ -98,10 +98,10 @@ fun AddReportPage(navController : NavController){
 
     val categories = listOf("Roads & StreetLights", "Waste Management", "Water & Utilities", "Parks and Recreation")
     val categoryIcons = mapOf(
-        "Roads & StreetLights" to R.drawable.homeicon,
-        "Waste Management" to R.drawable.mycity,
-        "Water & Utilities" to R.drawable.awareness,
-        "Parks and Recreation" to R.drawable.acrossindia
+        "Roads & StreetLights" to R.drawable.roadicon,
+        "Waste Management" to R.drawable.garbage,
+        "Water & Utilities" to R.drawable.watericon,
+        "Parks and Recreation" to R.drawable.parkicon
     )
 
     // Image picker launcher - Opens the gallery and allows the user to select an image

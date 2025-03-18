@@ -131,11 +131,19 @@ fun MyAccountPage(navController: NavController){
             if (reports.isEmpty()) {
                 Text("No reports available", fontSize = 16.sp, color = Color.Gray)
             } else {
+//                
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                   items(reports){ report->
-                       ReportItem(report,navController)
-                   }
+                    items(reports) { report ->
+                        ReportItem(
+                            report = report,
+                            navController = navController,
+                            onDelete = { reportId ->
+                                reports = reports.filter { it.reportId != reportId }
+                            }
+                        )
+                    }
                 }
+
             }
         }
         // Show confirmation dialog before logout
@@ -166,7 +174,7 @@ fun MyAccountPage(navController: NavController){
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun ReportItem(report: Report, navController: NavController) {
+fun ReportItem(report: Report, navController: NavController, onDelete: (String)-> Unit) {
     val context = LocalContext.current // Get context here
     val userId = getCurrentUserId() // Fetch current user's ID
     var longPressDetected by remember { mutableStateOf(false) }  // Track long press
@@ -230,6 +238,7 @@ fun ReportItem(report: Report, navController: NavController) {
             confirmButton = {
                 Button(onClick = {
                     deleteReport(report.reportId, context)
+                    onDelete(report.reportId)
                     showDeleteDialog = false
                 }) {
                     Text("Yes")

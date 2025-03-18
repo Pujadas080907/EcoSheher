@@ -1,6 +1,9 @@
 package com.example.ecosheher.bottomNavPages
 
 
+import android.app.Activity
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -23,14 +26,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -45,6 +52,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -69,17 +77,22 @@ import java.nio.charset.StandardCharsets
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomePage(modifier: Modifier = Modifier, navController: NavController, authViewModel: AuthViewModel) {
+
+    val activity = LocalActivity.current
     val authState = authViewModel.authState.observeAsState()
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     var reports by remember { mutableStateOf<List<Report>>(emptyList()) }
     var reportsByCategory by remember { mutableStateOf<Map<String, List<Report>>>(emptyMap()) }
+    var selectedCategory by remember { mutableStateOf<String?>( "Roads & StreetLights") } // Store selected category
 
     val categoryIcons = mapOf(
-        "Roads & StreetLights" to R.drawable.homeicon,
-        "Waste Management" to R.drawable.mycity,
-        "Water & Utilities" to R.drawable.awareness,
-        "Parks and Recreation" to R.drawable.acrossindia
+        "Roads & StreetLights" to R.drawable.roadicon,
+        "Waste Management" to R.drawable.garbage,
+        "Water & Utilities" to R.drawable.watericon,
+        "Parks and Recreation" to R.drawable.parkicon
     )
+
+
 
     LaunchedEffect(Unit) {
         FirestoreHelper.getAllReports { fetchedReports ->
@@ -87,7 +100,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                 reports = fetchedReports.sortedByDescending { it.upvoteCount ?: 0 }
                 reportsByCategory = fetchedReports
                     .groupBy { it.category ?: "Uncategorized" }
-                    .mapValues { entry -> entry.value.sortedByDescending { it.timestamp ?: 0 } }
+                reports = fetchedReports.sortedByDescending { it.upvoteCount ?: 0 }
             } else {
                 reports = emptyList()
                 reportsByCategory = emptyMap()
@@ -100,6 +113,11 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
             is AuthState.Unauthenticated -> navController.navigate("login")
             else -> Unit
         }
+    }
+
+    // Handle back press to close the app
+    BackHandler {
+        activity?.finish()
     }
 
     Scaffold(
@@ -141,6 +159,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .padding(start = 15.dp)
                 .verticalScroll(rememberScrollState())
         ) {
             // Most Upvoted Posts
@@ -156,26 +175,59 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                 horizontalArrangement = Arrangement.spacedBy(18.dp)
             ) {
                 items(reports) { report ->
-                    Box(modifier = Modifier.width(screenWidth)) {
+                   // Box(modifier = Modifier.width(screenWidth)) {
                         ReportItems0(report, navController)
-                    }
+                   // }
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp)) // Space before category-wise posts
+            Spacer(modifier = Modifier.height(16.dp))
 
+            // Category Selection Dropdown
             Text(
-                text = "Explore All Category Issues",
+                text = "Explore Category Issues",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp, start = 10.dp )
+                    .padding(bottom = 12.dp, start = 10.dp)
             )
-            // Category-wise Posts
-            reportsByCategory.forEach { (category, reports) ->
-                if (categoryIcons.containsKey(category)) { // Ensure category exists in the defined list
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp)
+            ) {
+                var expanded by remember { mutableStateOf(false) }
+                OutlinedButton(
+                    onClick = { expanded = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = selectedCategory ?: "Select a Category", color = colorResource(R.color.main_color))
+                    Icon(Icons.Filled.ArrowDropDown, contentDescription = "Dropdown", tint = colorResource(R.color.main_color))
+                }
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
+                ) {
+                    categoryIcons.keys.forEach { category ->
+                        DropdownMenuItem(
+                            text = { Text(category) },
+                            onClick = {
+                                selectedCategory = category
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Show selected category's posts
+            selectedCategory?.let { category ->
+                reportsByCategory[category]?.let { reports ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -188,7 +240,6 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                                 contentDescription = category,
                                 modifier = Modifier.size(20.dp),
                                 colorFilter = ColorFilter.tint(Color.Gray)
-
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                         }
@@ -203,18 +254,17 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
 
                     LazyRow(
                         modifier = Modifier.fillMaxWidth(),
-                        state = rememberLazyListState(),
-                        horizontalArrangement = Arrangement.spacedBy(18.dp)
+                      //  state = rememberLazyListState(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        items(reports.filter { it.category == category }) { report ->
-                            Box(modifier = Modifier.width(screenWidth)) {
-                                ReportItems0(report, navController)
-                            }
+                        items(reports) { report ->
+                          //  Box(modifier = Modifier.width(screenWidth)) {
+                                ReportItems1(report, navController)
+                           // }
                         }
                     }
                 }
             }
-
         }
     }
 }
@@ -247,7 +297,10 @@ fun ReportItems0(report: Report, navController: NavController) {
                 contentDescription = "Report Image",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
+                    .padding(10.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .width(300.dp)
+                    .height(150.dp),
                 contentScale = ContentScale.Crop
             )
 //            Spacer(modifier = Modifier.height(8.dp))
@@ -265,10 +318,10 @@ fun ReportItems0(report: Report, navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Filled.ThumbUp,
+                    painter = painterResource(R.drawable.upvote),
                     contentDescription = "Upvote",
                     modifier = Modifier
-                        .size(24.dp),
+                        .size(18.dp),
                     tint = colorResource(R.color.main_color)
                 )
 
@@ -285,11 +338,80 @@ fun ReportItems0(report: Report, navController: NavController) {
     }
 }
 
+
+@Composable
+fun ReportItems1(report: Report, navController: NavController) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(10.dp)
+            .background(Color.White)
+            .clickable {
+                val reportJson = Gson().toJson(report)  // Convert object to JSON
+                val encodedJson = URLEncoder.encode(reportJson, StandardCharsets.UTF_8.toString())
+                    .replace("+", "%20")
+                navController.navigate("${Routes.IssueDetails.routes}/$encodedJson")
+            },
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(Color.White)
+
+        ) {
+            Image(
+                painter = rememberAsyncImagePainter(model = report.imageUrl),
+                contentDescription = "Report Image",
+                modifier = Modifier
+                    .padding(start = 10.dp, top = 10.dp, end = 10.dp)
+                    .fillMaxWidth()
+                    .width(130.dp)
+                    .height(140.dp)
+                    .clip(RoundedCornerShape(12.dp)),
+                contentScale = ContentScale.Crop
+            )
+//            Spacer(modifier = Modifier.height(8.dp))
+//            Text("Title: ${report.title}", fontWeight = FontWeight.Bold)
+//            Text("Description: ${report.description}")
+//            Text("Category: ${report.category}")
+//            Text("Location: ${report.location}")
+//            Spacer(modifier = Modifier.height(4.dp))
+//            Text("Upvotes: ${report.upvoteCount}", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.upvote),
+                    contentDescription = "Upvote",
+                    modifier = Modifier
+                        .size(15.dp),
+                    tint = colorResource(R.color.main_color)
+                )
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                Text(
+                    text = "Upvotes: ${report.upvoteCount}",
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun BottomNavigationBar(navController: NavController) {
     val selectedIndex = remember { mutableStateOf(0) }
     val items = listOf(
-        "Home" to R.drawable.homeicon,
+        "Home" to R.drawable.img,
         "MyCity" to R.drawable.mycity,
         "Add" to R.drawable.plusicon,
         "AcrossIndia" to R.drawable.acrossindia,

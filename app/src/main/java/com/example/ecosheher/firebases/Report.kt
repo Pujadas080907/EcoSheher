@@ -132,17 +132,32 @@ object FirestoreHelper {
         sharedPreferences.edit().putBoolean(reportId, true).apply()
     }
 
-    fun deleteReport(reportId: String, context: Context) {
-        // Firebase logic to delete the report
-        val db = FirebaseFirestore.getInstance()
-        db.collection("reports").document(reportId)
-            .delete()
-            .addOnSuccessListener {
-                Toast.makeText(context, "Report deleted successfully", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(context, "Failed to delete report", Toast.LENGTH_SHORT).show()
-            }
+//    fun deleteReport(reportId: String, context: Context) {
+//        // Firebase logic to delete the report
+//        val db = FirebaseFirestore.getInstance()
+//        db.collection("reports").document(reportId)
+//            .delete()
+//            .addOnSuccessListener {
+//                Toast.makeText(context, "Report deleted successfully", Toast.LENGTH_SHORT).show()
+//            }
+//            .addOnFailureListener {
+//                Toast.makeText(context, "Failed to delete report", Toast.LENGTH_SHORT).show()
+//            }
+//    }
+fun deleteReport(reportId: String, context: Context) {
+    if (reportId.isEmpty()) {
+        Toast.makeText(context, "Invalid report ID", Toast.LENGTH_SHORT).show()
+        return
     }
+
+    db.collection("reports").document(reportId)
+        .delete()
+        .addOnSuccessListener {
+            Toast.makeText(context, "Report deleted successfully", Toast.LENGTH_SHORT).show()
+        }
+        .addOnFailureListener {
+            Toast.makeText(context, "Failed to delete report", Toast.LENGTH_SHORT).show()
+        }
+}
 
 }

@@ -1,6 +1,7 @@
 package com.example.ecosheher.showfullissue
 
 import android.content.Intent
+import android.location.Geocoder
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,11 +18,15 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.ecosheher.firebases.FirestoreHelper
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -79,25 +84,40 @@ fun IssueDetailsPage(
             ) {
                 Text(
                     text = title,
-                    fontSize = 24.sp,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black,
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.clickable {
                         if (location.isNotEmpty()) {
-                            val gmmIntentUri = Uri.parse("geo:0,0?q=${Uri.encode(location)}")
-                            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                            mapIntent.setPackage("com.google.android.apps.maps")
-                            if (mapIntent.resolveActivity(context.packageManager) != null) {
-                                context.startActivity(mapIntent)
-                            } else {
-                                val fallbackIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-                                context.startActivity(fallbackIntent)
+                            val geocoder = Geocoder(context, Locale.getDefault())
+                            try {
+                                val addresses = geocoder.getFromLocationName(location, 1)
+                                if (!addresses.isNullOrEmpty()) {
+                                    val latitude = addresses[0].latitude
+                                    val longitude = addresses[0].longitude
+                                    val encodedLocation = Uri.encode(location)
+                                    val gmmIntentUri =
+                                        Uri.parse("geo:$latitude,$longitude?q=$latitude,$longitude($encodedLocation)")
+                                    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                                    mapIntent.setPackage("com.google.android.apps.maps")
+                                    if (mapIntent.resolveActivity(context.packageManager) != null) {
+                                        context.startActivity(mapIntent)
+                                    } else {
+                                        context.startActivity(
+                                            Intent(
+                                                Intent.ACTION_VIEW,
+                                                gmmIntentUri
+                                            )
+                                        )
+                                    }
+                                }
+                            } catch (e: IOException) {
+                                e.printStackTrace()
                             }
                         }
                     }
@@ -106,10 +126,10 @@ fun IssueDetailsPage(
                         painter = painterResource(id = R.drawable.locationicon),
                         contentDescription = "Location Icon",
                         modifier = Modifier.size(20.dp),
-                        tint = Color.Gray
+                        tint = Color.Red
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = location, fontSize = 14.sp, color = Color.Gray)
+                    Text(text = location, fontSize = 14.sp, color = Color.Gray, fontWeight = FontWeight.Medium)
                 }
             }
 
@@ -160,28 +180,73 @@ fun IssueDetailsPage(
                             FirestoreHelper.unmarkUserUpvoted(context, reportId)
                         }
                     }
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.upvotingicon),
-                        contentDescription = "Upvote Icon",
-                        modifier = Modifier.size(28.dp),
-                        tint = if (isUpvoted) colorResource(R.color.main_color) else Color.Gray
-                    )
-                }
-                Text(
-                    text = upvoteCount.toString(),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.upvote),
+                    contentDescription = "Upvote Icon",
+                    modifier = Modifier.size(20.dp),
+                    tint = if (isUpvoted) colorResource(R.color.main_color) else Color.Gray
                 )
             }
+                Text(
+                    text = if (isUpvoted) "Upvoted" else "Upvote",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = if (isUpvoted) colorResource(R.color.main_color) else Color.Gray,
+                    modifier = Modifier.padding(start = 2.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = upvoteCount.toString(),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black
+            )
+        }
 
-            Text(text = "Description: $description", fontSize = 16.sp, color = Color.Black)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Category: $category", fontSize = 16.sp, color = Color.Black)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "Date: $reportDate", fontSize = 16.sp, color = Color.Black)
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Black)) {
+                                append("Description: ")
+                            }
+                            withStyle(style = SpanStyle(color = Color.Gray)) { // Change color here
+                                append(description)
+                            }
+                        },
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(start = 12.dp)
+                    )
             Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Black)) {
+                        append("Category: ")
+                    }
+                    withStyle(style = SpanStyle(color = Color.Gray)) { // Change color here
+                        append(category)
+                    }
+                },
+                fontSize = 16.sp,
+                modifier = Modifier.padding(start = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold, color = Color.Black)) {
+                        append("Date: ")
+                    }
+                    withStyle(style = SpanStyle(color = Color.Gray)) { // Change color here
+                        append(reportDate)
+                    }
+                },
+                fontSize = 16.sp,
+                modifier = Modifier.padding(start = 12.dp)
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+
+
         }
     }
 }
