@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -53,6 +55,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -209,27 +212,94 @@ fun MyAccountPage(navController: NavController,authViewModel : AuthViewModel) {
             }
         }
 
-        // Show confirmation dialog before logout
+//        // Show confirmation dialog before logout
+//        if (showDialog) {
+//            AlertDialog(
+//                onDismissRequest = { showDialog = false },
+//                title = { Text("Confirm Logout") },
+//                text = { Text("Are you sure you want to log out?") },
+//                confirmButton = {
+//                    Button(onClick = {
+//                        authViewModel.signout()
+//                        navController.navigate(Routes.Login.routes) {
+//                            popUpTo(Routes.Home.routes) { inclusive = true }
+//                        }
+//                        showDialog = false
+//
+//                    }) {
+//                        Text("Yes")
+//                    }
+//                },
+//                dismissButton = {
+//                    Button(onClick = { showDialog = false }) {
+//                        Text("No")
+//                    }
+//                }
+//            )
+//        }
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = { showDialog = false },
-                title = { Text("Confirm Logout") },
-                text = { Text("Are you sure you want to log out?") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp),
+                containerColor = Color.White, // Background color
+                shape = RoundedCornerShape(18.dp), // Smooth UI with rounded corners
+                title = {
+                    Text(
+                        text = "Confirm Logout",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center // Center the text
+                    )
+                },
+                text = {
+                    Text(
+                        text = "Are you sure you want to log out?",
+                        fontSize = 14.sp,
+                        color = Color.Gray,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center // Center the text
+                    )
+                },
                 confirmButton = {
-                    Button(onClick = {
-                        authViewModel.signout()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally) // Space buttons side by sidehorizontally
+                    ) {
+                        Button(
+                            onClick = {
+                                authViewModel.signout()
                         navController.navigate(Routes.Login.routes) {
                             popUpTo(Routes.Home.routes) { inclusive = true }
                         }
                         showDialog = false
-
-                    }) {
-                        Text("Yes")
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)), // Green color
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            Text("Yes", color = Color.White)
+                        }
                     }
                 },
                 dismissButton = {
-                    Button(onClick = { showDialog = false }) {
-                        Text("No")
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        //horizontalArrangement = Arrangement.Center // Center buttons horizontally
+                    ) {
+                        Button(
+                            onClick = { showDialog = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0)), // Gray color
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ) {
+                            Text("No", color = Color.Black)
+                        }
                     }
                 }
             )
@@ -289,24 +359,80 @@ fun ReportItem(report: Report, navController: NavController, onDelete: (String)-
         }
     }
 
+//    // Show confirmation dialog on long press
+//    if (showDeleteDialog) {
+//        AlertDialog(
+//            onDismissRequest = { showDeleteDialog = false },
+//            title = { Text("Delete Report") },
+//            text = { Text("Are you sure you want to delete this report?") },
+//            confirmButton = {
+//                Button(onClick = {
+//                    deleteReport(report.reportId, context)
+//                    onDelete(report.reportId)
+//                    showDeleteDialog = false
+//                }) {
+//                    Text("Yes")
+//                }
+//            },
+//            dismissButton = {
+//                Button(onClick = { showDeleteDialog = false }) {
+//                    Text("No")
+//                }
+//            }
+//        )
+//    }
+
     // Show confirmation dialog on long press
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Report") },
-            text = { Text("Are you sure you want to delete this report?") },
+            modifier = Modifier
+                .fillMaxWidth(),  // Reduced padding around the dialog
+            containerColor = Color.White, // Background color
+            shape = RoundedCornerShape(16.dp), // Rounded corners
+            title = {
+                Text(
+                    text = "Delete Report",
+                    fontSize = 18.sp,  // Smaller font size for the title
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center // Center the title text
+                )
+            },
+            text = {
+                Text(
+                    text = "Are you sure you want to delete this report?",
+                    fontSize = 15.sp,  // Smaller font size for the text
+                    color = Color.Gray,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center // Center the text
+                )
+            },
             confirmButton = {
-                Button(onClick = {
-                    deleteReport(report.reportId, context)
-                    onDelete(report.reportId)
-                    showDeleteDialog = false
-                }) {
-                    Text("Yes")
+                Button(
+                    onClick = {
+                        deleteReport(report.reportId, context)
+                        onDelete(report.reportId)
+                        showDeleteDialog = false
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)), // Green color
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth() // Reduced padding between buttons
+                ) {
+                    Text("Yes", color = Color.White)
                 }
             },
             dismissButton = {
-                Button(onClick = { showDeleteDialog = false }) {
-                    Text("No")
+                Button(
+                    onClick = { showDeleteDialog = false },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE0E0E0)), // Gray color
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth() // Reduced padding between buttons
+                ) {
+                    Text("No", color = Color.Black)
                 }
             }
         )

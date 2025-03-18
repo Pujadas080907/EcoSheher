@@ -202,6 +202,6 @@ fun CustomTextField(
             .fillMaxWidth(0.9f)
             .defaultMinSize(minHeight = 50.dp)
             .padding(vertical = 2.dp)
-            .onFocusChanged { isFocused = it.isFocused } 
+            .onFocusChanged { isFocused = it.isFocused }
     )
 }

@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.ecosheher.R
+import com.example.ecosheher.navGraph.Routes
 
 @Composable
 fun Welcomepage3(navController: NavController) {
@@ -113,7 +114,7 @@ fun Welcomepage3(navController: NavController) {
 
         // Centered Full-Width Button
         Button(
-            onClick = { /* Handle button click */ },
+            onClick = {  navController.navigate("homepage") },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00A651)), // Green button
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier

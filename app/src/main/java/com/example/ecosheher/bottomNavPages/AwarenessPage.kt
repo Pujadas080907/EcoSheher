@@ -3,6 +3,7 @@ package com.example.ecosheher.bottomNavPages
 import YouTubePlayer
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -104,6 +105,25 @@ fun AwarenessPage(navController: NavController) {
                         ) {
                                 Text(text = "Know More about Civic Engagement", color = Color.White)
                         }
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Image below the button
+                        Image(
+                                painter = painterResource(id = R.drawable.ourearth), // Replace with your image resource
+                                contentDescription = "Civic Engagement",
+                                modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(240.dp) // Adjust size as needed
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Image(
+                                painter = painterResource(id = R.drawable.eco), // Replace with your image resource
+                                contentDescription = "Civic Engagement",
+                                modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(70.dp) // Adjust size as needed
+                        )
+
                 }
         }
 }

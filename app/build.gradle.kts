@@ -79,5 +79,5 @@ dependencies {
     //youtube api
     implementation ("com.pierfrancescosoffritti.androidyoutubeplayer:core:11.1.0")
 
-
+    implementation("androidx.core:core-splashscreen:1.0.0")
 }

@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.ecosheher.R
+import com.example.ecosheher.navGraph.Routes
 
 
 @Composable
@@ -75,7 +76,7 @@ fun WelcomePage(navController: NavController) {
                 contentAlignment = Alignment.Center
             ) {
                 Button(
-                    onClick = { /* Handle button click */ },
+                    onClick = {  navController.navigate("welcome2") },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
                     shape = RoundedCornerShape(9.dp),
                     modifier = Modifier

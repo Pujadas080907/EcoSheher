@@ -56,7 +56,7 @@ fun SignUpPage(modifier: Modifier = Modifier, navController: NavController, auth
         when(authState.value){
             is AuthState.Authenticated -> {
                 Toast.makeText(context, "Account created successfully!", Toast.LENGTH_SHORT).show()
-                navController.navigate("homepage")
+                navController.navigate("welcome")
             }
             is AuthState.Error-> Toast.makeText(context,
                 (authState.value as AuthState.Error).message, Toast.LENGTH_SHORT).show()
