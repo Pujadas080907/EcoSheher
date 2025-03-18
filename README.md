@@ -35,10 +35,10 @@ Here’s a glimpse of our Civic App in action:
 ## 🚀 Features
 
 ✅ **Easy Issue Reporting** – Report civic problems with images and location.  
-✅ **Check Issues Nearby** – Check the issues of nearby.  
-✅ **Service Requests** – Request municipal services quickly.  
-✅ **Community Alerts** – Stay updated with live civic news.  
-✅ **Interactive Map** – Locate nearby government offices and services.  
+✅ **Check Issues** – Check the issues of nearby or across India.  
+✅ **Profiles** – Can check the issues raised by you.  
+✅ **Awareness** – Stay updated with civic manners.  
+✅ **Interactive Map** – Locate the issues.  
 
 ---
 ## Authors
