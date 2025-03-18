@@ -179,10 +179,10 @@ fun CustomTextField(
             Text(
                 text = labelText,
                 fontSize = 13.sp,
-                color = if (isFocused) Color(0xFF009951) else Color(0xFFC4C4C4) // 🔥 Turns green when focused
+                color = if (isFocused) Color(0xFF009951) else Color(0xFFC4C4C4)
             )
         },
-        shape = RoundedCornerShape(20.dp), // 🔥 Matches Sign-In button's roundness
+        shape = RoundedCornerShape(20.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedTextColor = Color(0xFF333333),
             unfocusedTextColor = Color(0xFF333333),
@@ -191,17 +191,17 @@ fun CustomTextField(
             disabledContainerColor = Color.Transparent,
             focusedBorderColor = Color(0xFF009951),
             unfocusedBorderColor = Color(0xFFC4C4C4),
-            focusedLabelColor = Color(0xFF009951), // 🔥 Label moves up & turns green
+            focusedLabelColor = Color(0xFF009951),
             unfocusedLabelColor = Color(0xFFC4C4C4),
-            cursorColor = Color(0xFF009951) // 🔥 Green cursor
+            cursorColor = Color(0xFF009951)
         ),
         visualTransformation = if (isPassword) PasswordVisualTransformation() else androidx.compose.ui.text.input.VisualTransformation.None,
         singleLine = true,
         maxLines = 1,
         modifier = Modifier
             .fillMaxWidth(0.9f)
-            .defaultMinSize(minHeight = 50.dp) // 🔥 Keeps height stable
+            .defaultMinSize(minHeight = 50.dp)
             .padding(vertical = 2.dp)
-            .onFocusChanged { isFocused = it.isFocused } // Detects focus change
+            .onFocusChanged { isFocused = it.isFocused } 
     )
 }

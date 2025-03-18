@@ -1,4 +1,5 @@
 package com.example.ecosheher.addReportPage
+import androidx.compose.material3.CircularProgressIndicator
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -65,6 +66,8 @@ import android.Manifest
 import android.location.Location
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.focus.onFocusChanged
 import com.example.ecosheher.cloudinary.CloudinaryHelper
 import com.example.ecosheher.firebases.saveReportToFirebase
 
@@ -72,7 +75,9 @@ import com.example.ecosheher.firebases.saveReportToFirebase
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddReportPage(navController : NavController){
+fun AddReportPage(navController : NavController) {
+
+    var isLoading by remember { mutableStateOf(false) }
 
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
@@ -89,19 +94,25 @@ fun AddReportPage(navController : NavController){
     ) { isGranted ->
         if (isGranted) {
             getCurrentLocation(context, fusedLocationClient) { location ->
-                currentAddress = getAddressFromLocation(context, location.latitude, location.longitude)
+                currentAddress =
+                    getAddressFromLocation(context, location.latitude, location.longitude)
             }
         } else {
             Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
         }
     }
 
-    val categories = listOf("Roads & StreetLights", "Waste Management", "Water & Utilities", "Parks and Recreation")
+    val categories = listOf(
+        "Roads & StreetLights",
+        "Waste Management",
+        "Water & Utilities",
+        "Parks and Recreation"
+    )
     val categoryIcons = mapOf(
-        "Roads & StreetLights" to R.drawable.roadicon,
-        "Waste Management" to R.drawable.garbage,
-        "Water & Utilities" to R.drawable.watericon,
-        "Parks and Recreation" to R.drawable.parkicon
+        "Roads & StreetLights" to R.drawable.homeicon,
+        "Waste Management" to R.drawable.mycity,
+        "Water & Utilities" to R.drawable.awareness,
+        "Parks and Recreation" to R.drawable.acrossindia
     )
 
     // Image picker launcher - Opens the gallery and allows the user to select an image
@@ -136,7 +147,7 @@ fun AddReportPage(navController : NavController){
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
-                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                    .border(0.6.dp, Color.LightGray, RoundedCornerShape(8.dp))
                     .clickable { imagePickerLauncher.launch("image/*") } // Opens the gallery
                     .padding(8.dp),
                 contentAlignment = Alignment.Center
@@ -147,7 +158,7 @@ fun AddReportPage(navController : NavController){
                         Icon(
                             painter = painterResource(id = R.drawable.plusicon), // Placeholder icon
                             contentDescription = "Add Image",
-                            tint = Color.Gray,
+                            tint = Color.LightGray,
                             modifier = Modifier.size(40.dp)
                         )
                         Text("Choose an Image", fontSize = 14.sp, color = Color.Black)
@@ -163,7 +174,7 @@ fun AddReportPage(navController : NavController){
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(26.dp))
 
             // Category Selection
             Text(
@@ -172,19 +183,21 @@ fun AddReportPage(navController : NavController){
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
             )
+            Spacer(modifier = Modifier.height(16.dp))
 
             Column {
                 categories.forEach { category ->
+                    val isSelected = selectedCategory == category
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 4.dp)
+                            .padding(start = 6.dp, bottom = 12.dp)
                             .border(
-                                1.dp,
-                                if (selectedCategory == category) Color.Green else Color.Gray,
-                                RoundedCornerShape(8.dp)
+                                width = if (isSelected) 2.dp else 0.6.dp,
+                                color = if (isSelected) Color(0xFF009951) else Color.LightGray,
+                                shape = RoundedCornerShape(12.dp)
                             )
-                            .background(if (selectedCategory == category) Color(0xFFDFFFE1) else Color.White)
                             .clickable { selectedCategory = category }
                             .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -194,12 +207,17 @@ fun AddReportPage(navController : NavController){
                             Icon(
                                 painter = painterResource(id = iconResId),
                                 contentDescription = category,
-                                tint = Color.Black,
-                                modifier = Modifier.size(20.dp)
+                                tint = if (isSelected) Color(0xFF009951) else Color.Gray, // Change icon color
+                                modifier = Modifier.size(17.dp)
                             )
                         }
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(category, fontSize = 14.sp, color = Color.Black)
+                        Text(
+                            text = category,
+                            fontSize = 12.sp,
+                            color = if (isSelected) Color(0xFF009951) else Color.Gray, // Change text color
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal // Make text bold when selected
+                        )
                     }
                 }
             }
@@ -207,12 +225,13 @@ fun AddReportPage(navController : NavController){
             Spacer(modifier = Modifier.height(16.dp))
 
             // Title Input Field
+            var isTitleFocused by remember { mutableStateOf(false) }
             Text(
                 "Title:",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
-                )
+            )
             BasicTextField(
                 value = title,
                 onValueChange = { title = it },
@@ -220,19 +239,25 @@ fun AddReportPage(navController : NavController){
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
-                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                    .border(
+                        width = if (isTitleFocused) 2.dp else 0.6.dp,
+                        color = if (isTitleFocused) Color(0xFF009951) else Color.LightGray,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .onFocusChanged { isTitleFocused = it.isFocused }
                     .padding(12.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Description Input Field
+// Description Input Field
+            var isDescriptionFocused by remember { mutableStateOf(false) }
             Text(
                 "Description:",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black
-                )
+            )
             BasicTextField(
                 value = description,
                 onValueChange = { description = it },
@@ -241,7 +266,12 @@ fun AddReportPage(navController : NavController){
                     .fillMaxWidth()
                     .height(100.dp)
                     .padding(8.dp)
-                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                    .border(
+                        width = if (isDescriptionFocused) 2.dp else 0.6.dp,
+                        color = if (isDescriptionFocused) Color(0xFF009951) else Color.LightGray,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .onFocusChanged { isDescriptionFocused = it.isFocused }
                     .padding(12.dp)
             )
 
@@ -256,33 +286,37 @@ fun AddReportPage(navController : NavController){
             ) {
                 Column {
                     Text(
-                        "Click to add your current location",
-                        fontSize = 14.sp,
+                        "Add Location:",
+                        fontSize = 16.sp,
                         color = Color.Black,
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
                         text = currentAddress, // Display the fetched address
-                        fontSize = 12.sp,
+                        fontSize = 14.sp,
                         color = Color.Gray
                     )
                 }
                 Icon(
-                    painter = painterResource(id = R.drawable.locationicon),
+                    painter = painterResource(id = R.drawable.loc),
                     contentDescription = "Location",
-                    tint = Color.Black,
+                    tint = Color.Red,
                     modifier = Modifier
-                        .size(25.dp)
-                        .clickable{
-                           // Toast.makeText(context, "Location Clicked", Toast.LENGTH_SHORT).show()
+                        .size(30.dp)
+                        .clickable {
+                            // Toast.makeText(context, "Location Clicked", Toast.LENGTH_SHORT).show()
                             if (ContextCompat.checkSelfPermission(
                                     context,
                                     Manifest.permission.ACCESS_FINE_LOCATION
                                 ) == PackageManager.PERMISSION_GRANTED
                             ) {
                                 getCurrentLocation(context, fusedLocationClient) { location ->
-                                    currentAddress = getAddressFromLocation(context, location.latitude, location.longitude)
+                                    currentAddress = getAddressFromLocation(
+                                        context,
+                                        location.latitude,
+                                        location.longitude
+                                    )
                                 }
                             } else {
                                 locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -290,29 +324,62 @@ fun AddReportPage(navController : NavController){
                         }
                 )
             }
+            // Submit Button with Loading Effect
             Button(
-                onClick = { selectedImageUri?.let { uri ->
-                    CloudinaryHelper.uploadImage(context, uri,
-                        onSuccess = { imageUrl ->
-                            saveReportToFirebase(context,navController,imageUrl, title, description, selectedCategory, currentAddress)
-                        },
-                        onFailure = { error ->
-                            Toast.makeText(context, "Upload Failed: ${error.message}", Toast.LENGTH_LONG).show()
-                        })
-                } ?: Toast.makeText(context, "No Image Selected", Toast.LENGTH_SHORT).show()  },
+                onClick = {
+                    selectedImageUri?.let { uri ->
+                        isLoading = true // Start loading
+                        CloudinaryHelper.uploadImage(
+                            context, uri,
+                            onSuccess = { imageUrl ->
+                                saveReportToFirebase(
+                                    context,
+                                    navController,
+                                    imageUrl,
+                                    title,
+                                    description,
+                                    selectedCategory,
+                                    currentAddress
+                                )
+                                isLoading = false // Stop loading after success
+                            },
+                            onFailure = { error ->
+                                Toast.makeText(
+                                    context,
+                                    "Upload Failed: ${error.message}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                isLoading = false // Stop loading after failure
+                            })
+                    } ?: Toast.makeText(context, "No Image Selected", Toast.LENGTH_SHORT).show()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.main_color))
+                    .height(50.dp)
+                    .border(
+                        2.dp,
+                        if (isLoading) Color(0xFF009951) else Color.Transparent,
+                        RoundedCornerShape(8.dp)
+                    ), // Green border when loading
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isLoading) Color.Gray else colorResource(id = R.color.main_color), // Grey when loading
+                    contentColor = Color.White
+                ),
+                enabled = !isLoading // Disable button when loading
             ) {
-                Text("Post Issue", color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = colorResource(id = R.color.main_color),
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text("Post Issue", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                }
             }
-
         }
     }
 }
-
 
 
 // Function to Get Current Location

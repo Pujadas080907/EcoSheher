@@ -22,6 +22,9 @@ import com.example.ecosheher.bottomNavPages.AwarenessPage
 import com.example.ecosheher.bottomNavPages.HomePage
 import com.example.ecosheher.bottomNavPages.MyCityPage
 import com.example.ecosheher.firebases.Report
+import com.example.ecosheher.initialpages.WelcomePage
+import com.example.ecosheher.initialpages.Welcomepage1
+import com.example.ecosheher.initialpages.Welcomepage3
 import com.example.ecosheher.myAccount.MyAccountPage
 import com.example.ecosheher.showfullissue.IssueDetailsPage
 import com.google.gson.Gson
@@ -51,11 +54,26 @@ fun SetNavGraph(modifier: Modifier = Modifier, authViewModel: AuthViewModel){
         composable(Routes.SignUp.routes) {
             SignUpPage(modifier,navController,authViewModel)
         }
+
+
+        composable(Routes.welcome.routes) {
+            WelcomePage(navController)
+        }
+
+        composable(Routes.welcome2.routes) {
+            Welcomepage1(navController)
+        }
+        composable(Routes.welcome3.routes) {
+            Welcomepage3(navController)
+
+        }
+
+
         composable(Routes.Home.routes) {
             HomePage(modifier,navController,authViewModel)
         }
         composable(Routes.MyAccount.routes) {
-            MyAccountPage(navController)
+            MyAccountPage(navController,authViewModel)
         }
 
         composable(Routes.MyCity.routes) {

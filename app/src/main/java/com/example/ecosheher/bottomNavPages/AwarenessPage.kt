@@ -7,17 +7,24 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.ecosheher.R
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -28,15 +35,45 @@ fun AwarenessPage(navController: NavController) {
 
         Scaffold(
                 topBar = {
-                        // Top App Bar
+                        // Top App Bar with Back Arrow and Centered Title
                         TopAppBar(
-                                title = { Text("Civic Engagement", color = Color.White, fontSize = 20.sp) },
+                                title = {
+                                        Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                                IconButton(
+                                                        onClick = {
+                                                                if (navController.previousBackStackEntry != null) {
+                                                                        navController.popBackStack()
+                                                                }
+                                                        }
+                                                ) {
+                                                        Icon(
+                                                                painter = painterResource(R.drawable.backarrow),
+                                                                contentDescription = "Back",
+                                                                tint = Color.White,
+                                                                modifier = Modifier.size(15.dp)
+                                                        )
+                                                }
+
+                                                Spacer(modifier = Modifier.width(5.dp)) // Adjust spacing between icon and title
+
+                                                Text(
+                                                        text = "Civic Engagement",
+                                                        color = Color.White,
+                                                        fontSize = 20.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        modifier = Modifier.weight(1f), // Ensures centering
+                                                )
+                                        }
+                                },
                                 modifier = Modifier.height(80.dp),
-                                colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(id = R.color.main_color)),
+                                colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(id = R.color.main_color))
                         )
                 },
                 bottomBar = {
-                        // Bottom Navigation Bar (You can customize it as per your app's requirements)
+                        // Bottom Navigation Bar
                         BottomNavigationBar(navController)
                 }
         ) { paddingValues ->
@@ -45,7 +82,7 @@ fun AwarenessPage(navController: NavController) {
                                 .background(Color.White)
                                 .fillMaxSize()
                                 .padding(top = 100.dp, end = 15.dp, bottom = 15.dp, start = 15.dp)
-                                .padding(bottom = paddingValues.calculateBottomPadding()) // Adjust for the bottom navigation bar
+                                .padding(bottom = paddingValues.calculateBottomPadding()) // Adjust for bottom navigation bar
                                 .verticalScroll(scrollState) // Enable vertical scrolling
                 ) {
                         // YouTube Player

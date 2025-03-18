@@ -88,42 +88,112 @@ fun MyCityPage(navController: NavController) {
             }
         }
     }
+//
+//    Scaffold(
+//        topBar = {
+//            TopAppBar(
+//                title = { Text("My City", color = Color.White, fontSize = 20.sp) },
+//                modifier = Modifier.height(80.dp),
+//                colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(id = R.color.main_color)),
+//                actions = {
+//                    Icon(
+//                        painter = painterResource(id = R.drawable.locationicon),
+//                        contentDescription = "Location",
+//                        tint = Color.Red,
+//                        modifier = Modifier
+//                            .size(30.dp)
+//                            .clickable {
+//                                if (ContextCompat.checkSelfPermission(
+//                                        context, Manifest.permission.ACCESS_FINE_LOCATION
+//                                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+//                                ) {
+//                                    getCurrentLocation(context, fusedLocationClient) { location ->
+//                                        val address = getAddressFromLocation(
+//                                            context,
+//                                            location.latitude,
+//                                            location.longitude
+//                                        )
+//                                        currentAddress = address
+//                                        fetchReportsByLocation(address) { fetchedReports ->
+//                                            reports = fetchedReports
+//                                        }
+//                                    }
+//                                } else {
+//                                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+//                                }
+//                            }
+//                    )
+//                }
+//            )
+//        },
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("My City", color = Color.White, fontSize = 20.sp) },
-                modifier = Modifier.height(80.dp),
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(id = R.color.main_color)),
-                actions = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.locationicon),
-                        contentDescription = "Location",
-                        tint = Color.Red,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .clickable {
-                                if (ContextCompat.checkSelfPermission(
-                                        context, Manifest.permission.ACCESS_FINE_LOCATION
-                                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
-                                ) {
-                                    getCurrentLocation(context, fusedLocationClient) { location ->
-                                        val address = getAddressFromLocation(
-                                            context,
-                                            location.latitude,
-                                            location.longitude
-                                        )
-                                        currentAddress = address
-                                        fetchReportsByLocation(address) { fetchedReports ->
-                                            reports = fetchedReports
-                                        }
-                                    }
-                                } else {
-                                    locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Back Icon
+                        IconButton(
+                            onClick = {
+                                if (navController.previousBackStackEntry != null) {
+                                    navController.popBackStack()
                                 }
                             }
-                    )
-                }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.backarrow),
+                                contentDescription = "Back",
+                                tint = Color.White,
+                                modifier = Modifier.size(15.dp) // Increased size
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(5.dp)) // Space between back icon and title
+
+                        // Title
+                        Text(
+                            text = "My City",
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1f) // Ensures title stays centered
+                        )
+
+                        // Location Icon (on the right)
+                        Icon(
+                            painter = painterResource(id = R.drawable.locationicon),
+                            contentDescription = "Location",
+                            tint = Color.Red,
+                            modifier = Modifier
+                                .size(30.dp)
+                                .clickable {
+                                    if (ContextCompat.checkSelfPermission(
+                                            context, Manifest.permission.ACCESS_FINE_LOCATION
+                                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                                    ) {
+                                        getCurrentLocation(context, fusedLocationClient) { location ->
+                                            val address = getAddressFromLocation(
+                                                context,
+                                                location.latitude,
+                                                location.longitude
+                                            )
+                                            currentAddress = address
+                                            fetchReportsByLocation(address) { fetchedReports ->
+                                                reports = fetchedReports
+                                            }
+                                        }
+                                    } else {
+                                        locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+                                    }
+                                }
+                        )
+                    }
+                },
+                modifier = Modifier.height(80.dp),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(id = R.color.main_color))
             )
         },
         bottomBar = { BottomNavigationBar(navController) }
@@ -146,6 +216,11 @@ fun MyCityPage(navController: NavController) {
             ) {
                 items(reports) { report ->
                     ReportItem(report,navController)
+                    Divider(
+                        color = Color.LightGray, // Customize the color
+                        thickness = 0.6.dp,
+                        modifier = Modifier.padding(vertical = 8.dp) // Add spacing
+                    )
                 }
             }
 
@@ -174,7 +249,7 @@ fun ReportItem(report: Report, navController: NavController) {
                 }
             },
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+       // elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(containerColor = colorResource(id = R.color.white))
     ) {
         Row(

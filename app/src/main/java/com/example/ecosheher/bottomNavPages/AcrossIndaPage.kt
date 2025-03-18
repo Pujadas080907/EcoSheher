@@ -161,12 +161,39 @@ fun AcrossIndiaPage(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Across India", color = Color.White, fontSize = 20.sp) },
-                modifier = Modifier.height(80.dp),
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(id = R.color.main_color)),
-                actions = {
+                title = {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        IconButton(
+                            onClick = {
+                                if (navController.previousBackStackEntry != null) {
+                                    navController.popBackStack()
+                                }
+                            }
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.backarrow),
+                                contentDescription = "Back",
+                                tint = Color.White,
+                                modifier = Modifier.size(15.dp) // Increased size for visibility
+                            )
+                        }
 
-                }
+                        Spacer(modifier = Modifier.width(5.dp)) // Space between icon and title
+
+                        Text(
+                            text = "Across India",
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1f) // Ensures title is centered
+                        )
+                    }
+                },
+                modifier = Modifier.height(80.dp),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = colorResource(id = R.color.main_color))
             )
         },
         bottomBar = { BottomNavigationBar(navController) }

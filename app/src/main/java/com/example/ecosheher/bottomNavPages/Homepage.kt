@@ -26,11 +26,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -131,6 +134,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+
                         Text(
                             text = "EcoSheher",
                             color = Color.White,
@@ -261,6 +265,7 @@ fun HomePage(modifier: Modifier = Modifier, navController: NavController, authVi
                           //  Box(modifier = Modifier.width(screenWidth)) {
                                 ReportItems1(report, navController)
                            // }
+
                         }
                     }
                 }
@@ -284,7 +289,7 @@ fun ReportItems0(report: Report, navController: NavController) {
                 navController.navigate("${Routes.IssueDetails.routes}/$encodedJson")
             },
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 5.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(
             modifier = Modifier

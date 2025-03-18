@@ -9,6 +9,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,8 +18,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -37,12 +43,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -58,20 +69,28 @@ import com.google.gson.Gson
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import com.example.ecosheher.R
+import com.example.ecosheher.authentication.AuthViewModel
 import com.example.ecosheher.ui.theme.opansnaps
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyAccountPage(navController: NavController){
+fun MyAccountPage(navController: NavController,authViewModel : AuthViewModel) {
     val context = LocalContext.current
     var reports by remember { mutableStateOf(emptyList<Report>()) }
-
-    val userId = FirebaseAuth.getInstance().currentUser?.uid
+    var userName by remember { mutableStateOf("User") }
+    var userEmail by remember { mutableStateOf("No email") }
     var showDialog by remember { mutableStateOf(false) }
 
+    val user = FirebaseAuth.getInstance().currentUser
+    val userId = user?.uid
+
     LaunchedEffect(Unit) {
+        user?.let {
+            userName = it.displayName ?: "User"
+            userEmail = it.email ?: "No email"
+        }
+
         if (userId != null) {
-            // Fetch reports list based on userId
             val db = FirebaseFirestore.getInstance()
             db.collection("reports").whereEqualTo("userId", userId).get()
                 .addOnSuccessListener { documents ->
@@ -79,7 +98,7 @@ fun MyAccountPage(navController: NavController){
                     reports = reportList
                 }
                 .addOnFailureListener { error ->
-                    Toast.makeText(context, "Failed to fetch reports: ${error.localizedMessage ?: "Unknown error"}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Failed to fetch reports: ${error.localizedMessage}", Toast.LENGTH_SHORT).show()
                 }
         } else {
             Toast.makeText(context, "User not logged in", Toast.LENGTH_SHORT).show()
@@ -90,27 +109,24 @@ fun MyAccountPage(navController: NavController){
         topBar = {
             TopAppBar(
                 title = {
-                    Row(modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("My Reports", color = Color.White,
+                        Text(
+                            "My Reports", color = Color.White,
                             fontSize = 20.sp, fontWeight = FontWeight.Bold,
                             fontFamily = opansnaps,
-                            modifier = Modifier.weight(1f))
+                            modifier = Modifier.weight(1f)
+                        )
 
                         Icon(
-                            painter = painterResource(id = R.drawable.logout), // Ensure this icon exists in res/drawable
+                            painter = painterResource(id = R.drawable.logout),
                             contentDescription = "Logout",
                             modifier = Modifier
                                 .size(30.dp)
                                 .padding(end = 10.dp)
-                                .clickable {
-//                                    FirebaseAuth.getInstance().signOut()
-//                                    navController.navigate(Routes.Login.routes) {
-//                                        popUpTo(Routes.MyAccount.routes) { inclusive = true }
-//                                    }
-                                    showDialog = true
-                                },
+                                .clickable { showDialog = true },
                             tint = Color.White
                         )
                     }
@@ -126,16 +142,63 @@ fun MyAccountPage(navController: NavController){
                 .fillMaxSize()
                 .background(Color.White)
                 .padding(paddingValues)
-                .padding(16.dp)
+
         ) {
+
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.profile),
+                    contentDescription = "User Image",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .clip(CircleShape)
+                        .border(1.dp, Color.Gray, CircleShape),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append("Name: ")
+                        }
+                        append(userName)
+                    },
+                    fontSize = 18.sp,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                            append("Email: ")
+                        }
+                        append(userEmail)
+                    },
+                    fontSize = 16.sp,
+                    color = Color.Gray
+                )
+            }
+
+
+
+             // Display Reports
             if (reports.isEmpty()) {
                 Text("No reports available", fontSize = 16.sp, color = Color.Gray)
             } else {
-//                
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(reports) { report ->
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(8.dp)
+                ) {
+                    items(reports.size) { index ->
                         ReportItem(
-                            report = report,
+                            report = reports[index],
                             navController = navController,
                             onDelete = { reportId ->
                                 reports = reports.filter { it.reportId != reportId }
@@ -143,9 +206,9 @@ fun MyAccountPage(navController: NavController){
                         )
                     }
                 }
-
             }
         }
+
         // Show confirmation dialog before logout
         if (showDialog) {
             AlertDialog(
@@ -154,9 +217,12 @@ fun MyAccountPage(navController: NavController){
                 text = { Text("Are you sure you want to log out?") },
                 confirmButton = {
                     Button(onClick = {
-                        FirebaseAuth.getInstance().signOut()
-                        navController.navigate(Routes.Login.routes)
-                        showDialog = false // Close the dialog after logout
+                        authViewModel.signout()
+                        navController.navigate(Routes.Login.routes) {
+                            popUpTo(Routes.Home.routes) { inclusive = true }
+                        }
+                        showDialog = false
+
                     }) {
                         Text("Yes")
                     }
@@ -169,8 +235,8 @@ fun MyAccountPage(navController: NavController){
             )
         }
     }
-
 }
+
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalFoundationApi::class)
 @Composable
@@ -183,7 +249,7 @@ fun ReportItem(report: Report, navController: NavController, onDelete: (String)-
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(4.dp)
             .combinedClickable(
                 onClick = {
                     Log.d("Navigation", "Navigating with Report: $report")  // Debugging
@@ -203,13 +269,13 @@ fun ReportItem(report: Report, navController: NavController, onDelete: (String)-
                     }
                 }
             ),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        shape = RectangleShape,
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp)
+
         ) {
             Image(
                 painter = rememberAsyncImagePainter(model = report.imageUrl),
@@ -219,13 +285,7 @@ fun ReportItem(report: Report, navController: NavController, onDelete: (String)-
                     .height(150.dp),
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Title: ${report.title}", fontWeight = FontWeight.Bold)
-            Text("Description: ${report.description}")
-            Text("Category: ${report.category}")
-            Text("Location: ${report.location}")
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("Upvotes: ${report.upvoteCount}", fontSize = 16.sp, fontWeight = FontWeight.Bold)
+
         }
     }
 

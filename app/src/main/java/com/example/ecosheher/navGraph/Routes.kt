@@ -22,5 +22,9 @@ sealed class Routes(val routes: String) {
     //Issue Details Screen
     object IssueDetails : Routes("issuedetails")
 
-    
+    //welcome pages
+    object welcome : Routes("welcome")
+    object welcome2 : Routes("welcome2")
+    object welcome3 : Routes("welcome3")
+
 }

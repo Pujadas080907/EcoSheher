@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -175,21 +176,24 @@ fun SignUpPage(modifier: Modifier = Modifier, navController: NavController, auth
 
 
         Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { authViewModel.signup(username, email, password) },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF009951)), // Green color
-            shape = RoundedCornerShape(20.dp), // Match Sign-In button
-            modifier = Modifier
-                .fillMaxWidth(0.9f) // Ensure same width as Sign-In
-                .height(50.dp) // Ensure same height as Sign-In
-        ) {
-            Text(
-                text = "Sign Up", // Keep text consistent
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                color = Color.White
-            )
+        if (authState.value is AuthState.Loading) {
+            CircularProgressIndicator(color = colorResource(R.color.main_color))
+        } else {
+            Button(
+                onClick = { authViewModel.signup(username, email, password) },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF009951)), // Green color
+                shape = RoundedCornerShape(20.dp), // Match Sign-In button
+                modifier = Modifier
+                    .fillMaxWidth(0.9f) // Ensure same width as Sign-In
+                    .height(50.dp) // Ensure same height as Sign-In
+            ) {
+                Text(
+                    text = "Sign Up", // Keep text consistent
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    color = Color.White
+                )
+            }
         }
 
         TextButton(

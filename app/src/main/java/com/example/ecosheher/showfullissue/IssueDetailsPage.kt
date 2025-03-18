@@ -82,6 +82,7 @@ fun IssueDetailsPage(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
                 Text(
                     text = title,
                     fontSize = 15.sp,
